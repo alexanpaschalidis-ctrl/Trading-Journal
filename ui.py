@@ -109,6 +109,11 @@ html, body, .stApp, button, input, textarea, select,
 .trade-pnl {font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em;}
 .trade-meta {font-size: 0.8rem; color: #8E8E93; margin-top: 4px;}
 .trade-reasons {font-size: 0.8rem; color: #007AFF; margin-top: 4px;}
+.import-badge {
+    background: rgba(0,122,255,0.12); color: #007AFF; border-radius: 6px;
+    padding: 1px 7px; font-size: 0.66rem; font-weight: 600; margin-left: 7px;
+    vertical-align: middle;
+}
 
 /* Kalender */
 .cal-grid {display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px;}

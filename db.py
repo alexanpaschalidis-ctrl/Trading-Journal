@@ -47,9 +47,11 @@ def list_trades(location_slug: str) -> list[dict]:
     return res.data or []
 
 
-def insert_trade(trade: dict) -> dict:
+def insert_trade(trade: dict, pnl_override: float | None = None) -> dict:
     trade = dict(trade)
-    trade["pnl_eur"] = berechne_pnl(trade)
+    # Beim Import wird die realisierte PNL (inkl. Gebühren) direkt übernommen,
+    # sonst aus Entry/Exit/Instrument/Kontrakten berechnet.
+    trade["pnl_eur"] = pnl_override if pnl_override is not None else berechne_pnl(trade)
     res = _client().table(TABLE).insert(trade).execute()
     return (res.data or [{}])[0]
 

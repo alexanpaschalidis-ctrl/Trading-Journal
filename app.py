@@ -13,7 +13,9 @@ from datetime import date
 import streamlit as st
 
 import db
+import importer
 import ui
+from importer import ImportFehler
 from locations import LOCATIONS, get_location
 from mentor import MentorFehler, hole_feedback
 from trades import (
@@ -21,11 +23,15 @@ from trades import (
     INSTRUMENTE,
     RICHTUNGEN,
     STATUS_MANUELL,
+    STATUS_OFFEN,
     STATUS_OPTIONEN,
     berechne_pnl,
     chance_risiko,
     format_eur,
 )
+
+LABEL_TO_SLUG = {loc["label"]: loc["slug"] for loc in LOCATIONS}
+LOCATION_LABELS = [loc["label"] for loc in LOCATIONS]
 
 st.set_page_config(page_title="Trading Journal", page_icon="📈", layout="centered")
 ui.inject_css()
@@ -86,8 +92,11 @@ def home() -> None:
         unsafe_allow_html=True,
     )
 
-    if st.button("📅 Kalender-Ansicht"):
+    c_kal, c_imp = st.columns(2)
+    if c_kal.button("📅 Kalender"):
         goto("kalender")
+    if c_imp.button("⬇️ Importieren"):
+        goto("import")
 
 
 # --- Kalender -----------------------------------------------------------------
@@ -165,6 +174,111 @@ def kalender_view() -> None:
     )
 
 
+# --- Import -------------------------------------------------------------------
+
+def import_view() -> None:
+    if st.button("← Zurück zur Übersicht"):
+        st.session_state.pop("import_rows", None)
+        goto("home")
+
+    st.markdown('<div class="app-title">Trades importieren</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="app-sub">Screenshot deiner Trade-Liste hochladen — Claude liest die '
+        'Trades aus. Oder eine CSV/Excel-Datei aus Airtrade Pro.</div>',
+        unsafe_allow_html=True,
+    )
+
+    tab_shot, tab_csv = st.tabs(["📷 Screenshot", "📄 CSV/Excel"])
+
+    with tab_shot:
+        bild = st.file_uploader("Screenshot", type=["png", "jpg", "jpeg"], key="imp_shot")
+        if bild is not None and st.button("Trades auslesen", key="imp_shot_btn"):
+            with st.spinner("Claude liest den Screenshot …"):
+                try:
+                    st.session_state["import_rows"] = importer.extrahiere_aus_screenshot(bild.getvalue())
+                    st.session_state["import_quelle"] = "import-screenshot"
+                except ImportFehler as exc:
+                    st.warning(str(exc))
+
+    with tab_csv:
+        datei = st.file_uploader("CSV / Excel", type=["csv", "xlsx", "xls"], key="imp_csv")
+        if datei is not None and st.button("Datei einlesen", key="imp_csv_btn"):
+            try:
+                df = importer.parse_tabelle(datei.getvalue(), datei.name)
+                st.session_state["import_rows"] = importer.mappe_spalten(df)
+                st.session_state["import_quelle"] = "import-csv"
+            except ImportFehler as exc:
+                st.warning(str(exc))
+
+    rows = st.session_state.get("import_rows")
+    if rows is not None:
+        if not rows:
+            st.warning("Keine Trades erkannt. Versuch einen klareren Screenshot oder die CSV.")
+        else:
+            _import_vorschau(rows, st.session_state.get("import_quelle", "import-screenshot"))
+
+
+def _import_vorschau(rows: list[dict], quelle: str) -> None:
+    import pandas as pd
+
+    st.markdown("#### Vorschau — prüfen, Location wählen, übernehmen")
+    df = pd.DataFrame(rows)
+    if "Location" not in df.columns:
+        df["Location"] = "Sonstige Location"
+
+    edited = st.data_editor(
+        df,
+        num_rows="dynamic",
+        use_container_width=True,
+        key="import_editor",
+        column_config={
+            "instrument": st.column_config.SelectboxColumn("Instrument", options=INSTRUMENTE),
+            "richtung": st.column_config.SelectboxColumn("Richtung", options=RICHTUNGEN),
+            "kontrakte": st.column_config.NumberColumn("Kontrakte", min_value=1, step=1),
+            "entry": st.column_config.NumberColumn("Entry", format="%.2f"),
+            "exit": st.column_config.NumberColumn("Exit", format="%.2f"),
+            "pnl_eur": st.column_config.NumberColumn("PnL €", format="%.2f"),
+            "datum": st.column_config.TextColumn("Datum (YYYY-MM-DD)"),
+            "Location": st.column_config.SelectboxColumn("Location", options=LOCATION_LABELS),
+        },
+    )
+
+    if st.button(f"✅ {len(edited)} Trades übernehmen"):
+        anzahl = 0
+        for _, r in edited.iterrows():
+            exit_v = r.get("exit")
+            hat_exit = pd.notna(exit_v) and exit_v != ""
+            pnl_v = r.get("pnl_eur")
+            pnl_override = float(pnl_v) if pd.notna(pnl_v) and pnl_v != "" else None
+            datum = r.get("datum")
+            datum = str(datum) if pd.notna(datum) and datum != "" else date.today().isoformat()
+            trade = {
+                "location_slug": LABEL_TO_SLUG.get(r.get("Location"), "sonstige"),
+                "richtung": r.get("richtung") if r.get("richtung") in RICHTUNGEN else "Long",
+                "instrument": r.get("instrument") if r.get("instrument") in INSTRUMENTE else INSTRUMENTE[0],
+                "kontrakte": float(r.get("kontrakte") or 1),
+                "entry": float(r.get("entry")) if pd.notna(r.get("entry")) and r.get("entry") != "" else 0.0,
+                "sl": None,
+                "tp": None,
+                "bias": None,
+                "status": STATUS_MANUELL if hat_exit else STATUS_OFFEN,
+                "exit_preis": float(exit_v) if hat_exit else None,
+                "einstiegsgruende": [],
+                "notiz": "",
+                "datum": datum,
+                "screenshot_path": None,
+                "quelle": quelle,
+            }
+            try:
+                db.insert_trade(trade, pnl_override=pnl_override)
+                anzahl += 1
+            except Exception as exc:
+                st.error(f"Zeile übersprungen: {exc}")
+        st.session_state.pop("import_rows", None)
+        st.success(f"{anzahl} Trades übernommen. Jetzt in den Locations BIAS/Gründe/Notiz ergänzen.")
+        st.rerun()
+
+
 # --- Trade-Formular (neu + bearbeiten) ---------------------------------------
 
 def trade_formular(loc: dict, trade: dict | None = None) -> bool:
@@ -172,7 +286,13 @@ def trade_formular(loc: dict, trade: dict | None = None) -> bool:
     ist_edit = trade is not None
     form_key = f"form_edit_{trade['id']}" if ist_edit else f"form_new_{loc['slug']}"
 
+    akt_label = (get_location(trade["location_slug"]) or loc)["label"] if trade else loc["label"]
+
     with st.form(form_key, clear_on_submit=not ist_edit):
+        gewaehlte_location = st.selectbox(
+            "Location", LOCATION_LABELS,
+            index=LOCATION_LABELS.index(akt_label) if akt_label in LOCATION_LABELS else 0,
+        )
         c1, c2 = st.columns(2)
         richtung = c1.radio("Richtung", RICHTUNGEN, horizontal=True,
                             index=_index(RICHTUNGEN, trade.get("richtung") if trade else None))
@@ -227,7 +347,7 @@ def trade_formular(loc: dict, trade: dict | None = None) -> bool:
             st.error(f"Screenshot konnte nicht gespeichert werden: {exc}")
 
     daten = {
-        "location_slug": loc["slug"],
+        "location_slug": LABEL_TO_SLUG.get(gewaehlte_location, loc["slug"]),
         "richtung": richtung,
         "instrument": instrument,
         "kontrakte": float(kontrakte),
@@ -264,11 +384,16 @@ def trade_karte(trade: dict) -> None:
     accent = ui.pnl_color(pnl)
     crv = chance_risiko(trade)
     gruende = ", ".join(trade.get("einstiegsgruende") or []) or "—"
+    badge = (
+        '<span class="import-badge">importiert</span>'
+        if (trade.get("quelle") or "manuell") != "manuell"
+        else ""
+    )
 
     st.markdown(
         f'<div class="trade-card" style="--accent:{accent}">'
         f'<div class="trade-top"><span class="trade-dir">{trade.get("richtung")} '
-        f'{trade.get("instrument")} ×{int(trade.get("kontrakte", 0))}</span>'
+        f'{trade.get("instrument")} ×{int(trade.get("kontrakte", 0))}{badge}</span>'
         f'<span class="trade-pnl" style="color:{accent}">{format_eur(pnl)}</span></div>'
         f'<div class="trade-meta">{trade.get("datum", "")} · Entry {trade.get("entry")} · '
         f'SL {trade.get("sl")} · TP {trade.get("tp")} · {trade.get("status")} · '
@@ -387,6 +512,8 @@ def main() -> None:
         home()
     elif view == "kalender":
         kalender_view()
+    elif view == "import":
+        import_view()
     else:
         location_view(view)
 
