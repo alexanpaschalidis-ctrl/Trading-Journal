@@ -1,0 +1,17 @@
+# Secrets — never commit
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local data / scratch
+data/*.local
+*.local
+.DS_Store
+
+# Private Wissensbasis — nur lokal, NICHT ins (öffentliche) Repo
+knowledge/
+seed_knowledge.sql
