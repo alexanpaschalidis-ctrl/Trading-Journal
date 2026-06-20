@@ -1,4 +1,4 @@
-"""Mobile-first UI-Bausteine: Theme-CSS, Passwort-Gate, Bubble-Karten."""
+"""Mobile-first UI-Bausteine im minimalistischen Apple-Stil (hell)."""
 
 from __future__ import annotations
 
@@ -6,88 +6,90 @@ import streamlit as st
 
 from trades import format_eur
 
-GOLD = "#C9A961"
-MINT = "#6FFFB0"
-RED = "#E27B6E"
-TEXT_MAIN = "#E8E0CC"
-TEXT_MUTED = "#8FA89E"
+# Apple-System-Palette
+BLUE = "#007AFF"
+GREEN = "#34C759"
+RED = "#FF3B30"
+GRAY = "#8E8E93"
+TEXT_MAIN = "#1C1C1E"
+TEXT_MUTED = "#8E8E93"
+HAIRLINE = "rgba(60,60,67,0.12)"
 
 CSS = """
 <style>
-/* Streamlit-Chrome verstecken für App-Gefühl */
+/* SF-Systemschrift überall */
+html, body, .stApp, button, input, textarea, select,
+[class*="css"] {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Helvetica Neue", Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Streamlit-Chrome verstecken, ruhiger Hintergrund */
 #MainMenu, header, footer {visibility: hidden;}
-.block-container {padding-top: 1.2rem; padding-bottom: 3rem; max-width: 640px;}
+.stApp {background: #F2F2F7;}
+.block-container {padding-top: 1.4rem; padding-bottom: 3rem; max-width: 600px;}
 
-/* Große Touch-Buttons */
-.stButton > button {
-    width: 100%;
-    border-radius: 14px;
-    padding: 0.7rem 1rem;
-    font-size: 1.02rem;
-    font-weight: 600;
-    border: 1px solid rgba(201,169,97,0.35);
-    background: #0F2B23;
-    color: #E8E0CC;
+/* Titel */
+.app-title {
+    font-size: 1.7rem; font-weight: 700; color: #1C1C1E;
+    letter-spacing: -0.02em; margin-bottom: 0.15rem;
 }
-.stButton > button:hover {border-color: #C9A961; color: #C9A961;}
+.app-sub {color: #8E8E93; font-size: 0.9rem; margin-bottom: 0.9rem;}
 
-/* Bubble-Raster (2 Spalten, responsiv) */
-.bubble-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin: 8px 0 4px 0;
+/* Buttons — clean, abgerundet, blauer Text */
+.stButton > button, .stFormSubmitButton > button {
+    width: 100%; border-radius: 12px; padding: 0.55rem 1rem;
+    font-size: 1rem; font-weight: 500;
+    background: #FFFFFF; color: #007AFF;
+    border: 1px solid rgba(60,60,67,0.12);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: background 0.15s ease;
 }
+.stButton > button:hover {background: #F2F2F7; color: #007AFF; border-color: rgba(60,60,67,0.2);}
+.stButton > button:active {background: #E5E5EA;}
+/* Formular-Absenden = gefülltes Blau (primäre Aktion) */
+.stFormSubmitButton > button {background: #007AFF; color: #FFFFFF; border: none; font-weight: 600;}
+.stFormSubmitButton > button:hover {background: #0067D9; color: #FFFFFF;}
+
+/* Bubbles (Location-Karten) */
 .bubble {
-    border-radius: 22px;
-    padding: 22px 16px;
-    min-height: 132px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.05), rgba(0,0,0,0.15));
-    border: 2px solid var(--bubble-color, #C9A961);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.1);
+    border-radius: 16px; padding: 16px; min-height: 118px;
+    display: flex; flex-direction: column; gap: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-.bubble-label {font-size: 0.98rem; font-weight: 700; color: #E8E0CC; line-height: 1.2;}
-.bubble-pnl {font-size: 1.5rem; font-weight: 800;}
-.bubble-sub {font-size: 0.72rem; color: #8FA89E; letter-spacing: 0.04em; text-transform: uppercase;}
+.bubble-top {display: flex; align-items: center; gap: 7px;}
+.bubble-dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none;}
+.bubble-label {font-size: 0.92rem; font-weight: 600; color: #1C1C1E; letter-spacing: -0.01em;}
+.bubble-pnl {font-size: 1.5rem; font-weight: 700; margin-top: auto; letter-spacing: -0.02em;}
+.bubble-sub {font-size: 0.72rem; color: #8E8E93;}
 
 /* Trade-Karten */
 .trade-card {
-    border-radius: 16px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    background: #0F2B23;
-    border: 1px solid rgba(201,169,97,0.25);
-    border-left: 5px solid var(--accent, #C9A961);
+    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.1);
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-.trade-top {display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-.trade-dir {font-weight:700; color:#E8E0CC;}
-.trade-pnl {font-weight:800; font-size:1.1rem;}
-.trade-meta {font-size:0.82rem; color:#8FA89E; margin-top:4px;}
-.trade-reasons {font-size:0.82rem; color:#C9A961; margin-top:4px;}
-
-.app-title {font-size:1.6rem; font-weight:800; color:#C9A961; margin-bottom:0.2rem;}
-.app-sub {color:#8FA89E; font-size:0.86rem; margin-bottom:0.8rem;}
-.mentor-box {
-    border-radius:14px; padding:12px 16px; margin-top:8px;
-    background: rgba(201,169,97,0.08); border:1px solid rgba(201,169,97,0.3);
-}
+.trade-top {display: flex; justify-content: space-between; align-items: baseline; gap: 8px;}
+.trade-dir {font-weight: 600; color: #1C1C1E;}
+.trade-pnl {font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em;}
+.trade-meta {font-size: 0.8rem; color: #8E8E93; margin-top: 4px;}
+.trade-reasons {font-size: 0.8rem; color: #007AFF; margin-top: 4px;}
 
 /* Kalender */
-.cal-grid {display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; margin-top:8px;}
-.cal-head {text-align:center; font-size:0.7rem; color:#8FA89E; padding:2px 0; font-weight:700;}
+.cal-grid {display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px;}
+.cal-head {text-align: center; font-size: 0.7rem; color: #8E8E93; padding: 2px 0; font-weight: 600;}
 .cal-cell {
-    min-height:60px; border-radius:8px; padding:4px 5px;
-    background:#0F2B23; border:1px solid rgba(201,169,97,0.15);
-    display:flex; flex-direction:column; overflow:hidden;
+    min-height: 58px; border-radius: 10px; padding: 4px 5px;
+    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.08);
+    display: flex; flex-direction: column; overflow: hidden;
 }
-.cal-empty {background:transparent; border:none;}
-.cal-today {border:1px solid #C9A961;}
-.cal-day {color:#8FA89E; font-size:0.68rem;}
-.cal-pnl {font-weight:800; font-size:0.8rem; margin-top:auto; line-height:1.1;}
-.cal-count {color:#8FA89E; font-size:0.6rem;}
+.cal-empty {background: transparent; border: none;}
+.cal-today {border: 1.5px solid #007AFF;}
+.cal-day {color: #8E8E93; font-size: 0.68rem;}
+.cal-pnl {font-weight: 700; font-size: 0.8rem; margin-top: auto; line-height: 1.1; letter-spacing: -0.01em;}
+.cal-count {color: #8E8E93; font-size: 0.6rem;}
 </style>
 """
 
@@ -98,8 +100,8 @@ def inject_css() -> None:
 
 def pnl_color(betrag: float | None) -> str:
     if betrag is None or betrag == 0:
-        return GOLD
-    return MINT if betrag > 0 else RED
+        return GRAY
+    return GREEN if betrag > 0 else RED
 
 
 def passwort_gate() -> bool:
@@ -130,8 +132,9 @@ def passwort_gate() -> bool:
 def bubble_html(label: str, pnl: float | None, color: str) -> str:
     farbe = pnl_color(pnl)
     return (
-        f'<div class="bubble" style="--bubble-color:{color}">'
-        f'<div class="bubble-label">{label}</div>'
-        f'<div><div class="bubble-pnl" style="color:{farbe}">{format_eur(pnl)}</div>'
-        f'<div class="bubble-sub">realisiert</div></div></div>'
+        f'<div class="bubble">'
+        f'<div class="bubble-top"><span class="bubble-dot" style="background:{color}"></span>'
+        f'<span class="bubble-label">{label}</span></div>'
+        f'<div class="bubble-pnl" style="color:{farbe}">{format_eur(pnl)}</div>'
+        f'<div class="bubble-sub">realisiert</div></div>'
     )

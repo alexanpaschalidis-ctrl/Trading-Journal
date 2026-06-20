@@ -30,7 +30,7 @@ LOCATIONS = [
     {
         "slug": "konsolidierung",
         "label": "Konsolidierung",
-        "color": "#C9A961",
+        "color": "#007AFF",
         "wissen": [
             "konsolidierung.md",
             "bias_charakteristik/bc28_intraday-konsolidierungen.md",
@@ -49,7 +49,7 @@ LOCATIONS = [
     {
         "slug": "volumenkanten",
         "label": "Volumenbergkanten",
-        "color": "#6FB8FF",
+        "color": "#5AC8FA",
         "wissen": [
             "volumen.md",
             "output/volume_mountain_edge_01_definition.yaml",
@@ -67,7 +67,7 @@ LOCATIONS = [
     {
         "slug": "tageshoch_tief",
         "label": "Tageshoch/Tagestief",
-        "color": "#B98FFF",
+        "color": "#AF52DE",
         "wissen": [
             "hochs_tiefs.md",
             "boden_decken.md",
@@ -85,7 +85,7 @@ LOCATIONS = [
     {
         "slug": "sonstige",
         "label": "Sonstige Location",
-        "color": "#8FA89E",
+        "color": "#8E8E93",
         "wissen": [
             "marktphasen.md",
             "gewichtung_faktoren.md",
