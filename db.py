@@ -58,6 +58,25 @@ def update_trade(trade_id: str, fields: dict) -> None:
     _client().table(TABLE).update(fields).eq("id", trade_id).execute()
 
 
+def delete_trade(trade_id: str) -> None:
+    _client().table(TABLE).delete().eq("id", trade_id).execute()
+
+
+def pnl_pro_tag() -> dict[str, dict]:
+    """Pro Tag: realisierte PNL-Summe + Anzahl Trades (für die Kalender-Ansicht)."""
+    res = _client().table(TABLE).select("datum,pnl_eur").execute()
+    tage: dict[str, dict] = {}
+    for row in res.data or []:
+        datum = row.get("datum")
+        if not datum:
+            continue
+        eintrag = tage.setdefault(datum, {"pnl": 0.0, "count": 0})
+        eintrag["count"] += 1
+        if row.get("pnl_eur") is not None:
+            eintrag["pnl"] += float(row["pnl_eur"])
+    return tage
+
+
 @st.cache_data(show_spinner=False, ttl=3600)
 def lese_wissen(namen: tuple[str, ...]) -> dict[str, str]:
     """Lädt die Wissensdateien (Markdown/YAML) aus der privaten knowledge-Tabelle."""
@@ -109,6 +128,15 @@ def signed_url(path: str | None, expires_in: int = 3600) -> str | None:
         return res.get("signedURL") or res.get("signed_url")
     except Exception:
         return None
+
+
+def delete_screenshot(path: str | None) -> None:
+    if not path:
+        return
+    try:
+        _client().storage.from_(BUCKET).remove([path])
+    except Exception:
+        pass
 
 
 def download_screenshot(path: str | None) -> bytes | None:

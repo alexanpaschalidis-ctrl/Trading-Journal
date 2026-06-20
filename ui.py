@@ -74,6 +74,20 @@ CSS = """
     border-radius:14px; padding:12px 16px; margin-top:8px;
     background: rgba(201,169,97,0.08); border:1px solid rgba(201,169,97,0.3);
 }
+
+/* Kalender */
+.cal-grid {display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; margin-top:8px;}
+.cal-head {text-align:center; font-size:0.7rem; color:#8FA89E; padding:2px 0; font-weight:700;}
+.cal-cell {
+    min-height:60px; border-radius:8px; padding:4px 5px;
+    background:#0F2B23; border:1px solid rgba(201,169,97,0.15);
+    display:flex; flex-direction:column; overflow:hidden;
+}
+.cal-empty {background:transparent; border:none;}
+.cal-today {border:1px solid #C9A961;}
+.cal-day {color:#8FA89E; font-size:0.68rem;}
+.cal-pnl {font-weight:800; font-size:0.8rem; margin-top:auto; line-height:1.1;}
+.cal-count {color:#8FA89E; font-size:0.6rem;}
 </style>
 """
 
