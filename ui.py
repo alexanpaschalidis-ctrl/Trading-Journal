@@ -79,9 +79,15 @@ html, body, .stApp, button, input, textarea, select,
     box-shadow: 0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
 }
 .bubble {cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease;}
-.bubble:hover {transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7);}
-.bubble:active {transform: scale(0.99);}
-.bubble-link {text-decoration: none; display: block;}
+/* Ganze Bubble klickbar: unsichtbarer Button über der Karte (gleiche Sitzung) */
+[data-testid="column"]:hover .bubble {transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7);}
+[data-testid="column"]:active .bubble {transform: scale(0.99);}
+[class*="st-key-bubblebtn_"] {position: absolute; inset: 0; margin: 0 !important; z-index: 3;}
+[class*="st-key-bubblebtn_"] div[data-testid="stButton"] {height: 100%;}
+[class*="st-key-bubblebtn_"] button {
+    width: 100%; height: 100%; min-height: 118px; opacity: 0;
+    padding: 0; border: none; box-shadow: none; background: transparent;
+}
 .bubble-top {display: flex; align-items: center; gap: 7px;}
 .bubble-dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none;}
 .bubble-label {font-size: 0.92rem; font-weight: 600; color: #1C1C1E; letter-spacing: -0.01em;}
@@ -160,14 +166,13 @@ def passwort_gate() -> bool:
     return False
 
 
-def bubble_html(label: str, pnl: float | None, color: str, slug: str) -> str:
+def bubble_html(label: str, pnl: float | None, color: str) -> str:
     farbe = pnl_color(pnl)
     return (
-        f'<a class="bubble-link" href="?go={slug}" target="_self">'
         f'<div class="bubble">'
         f'<div class="bubble-top"><span class="bubble-dot" style="background:{color}"></span>'
         f'<span class="bubble-label">{label}</span>'
         f'<span class="bubble-chev">›</span></div>'
         f'<div class="bubble-pnl" style="color:{farbe}">{format_eur(pnl)}</div>'
-        f'<div class="bubble-sub">realisiert</div></div></a>'
+        f'<div class="bubble-sub">realisiert</div></div>'
     )

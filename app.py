@@ -76,10 +76,9 @@ def home() -> None:
         for col, loc in zip(cols, LOCATIONS[reihe:reihe + 2]):
             with col:
                 pnl = summen.get(loc["slug"])
-                st.markdown(
-                    ui.bubble_html(loc["label"], pnl, loc["color"], loc["slug"]),
-                    unsafe_allow_html=True,
-                )
+                st.markdown(ui.bubble_html(loc["label"], pnl, loc["color"]), unsafe_allow_html=True)
+                if st.button("Öffnen", key=f"bubblebtn_{loc['slug']}", use_container_width=True):
+                    goto(loc["slug"])
 
     st.markdown(
         f'<div class="app-sub" style="margin-top:14px">Gesamt realisiert: '
@@ -382,11 +381,6 @@ def location_view(slug: str) -> None:
 def main() -> None:
     if not ui.passwort_gate():
         return
-
-    # Klick auf eine Bubble kommt als ?go=<slug> rein
-    if "go" in st.query_params:
-        st.session_state["view"] = st.query_params["go"]
-        st.query_params.clear()
 
     view = st.session_state.get("view", "home")
     if view == "home":
