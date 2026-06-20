@@ -78,9 +78,14 @@ html, body, .stApp, button, input, textarea, select,
     display: flex; flex-direction: column; gap: 6px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
 }
+.bubble {cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease;}
+.bubble:hover {transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7);}
+.bubble:active {transform: scale(0.99);}
+.bubble-link {text-decoration: none; display: block;}
 .bubble-top {display: flex; align-items: center; gap: 7px;}
 .bubble-dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none;}
 .bubble-label {font-size: 0.92rem; font-weight: 600; color: #1C1C1E; letter-spacing: -0.01em;}
+.bubble-chev {margin-left: auto; color: #C7C7CC; font-size: 1.15rem; font-weight: 600; line-height: 1;}
 .bubble-pnl {font-size: 1.5rem; font-weight: 700; margin-top: auto; letter-spacing: -0.02em;}
 .bubble-sub {font-size: 0.72rem; color: #8E8E93;}
 
@@ -155,12 +160,14 @@ def passwort_gate() -> bool:
     return False
 
 
-def bubble_html(label: str, pnl: float | None, color: str) -> str:
+def bubble_html(label: str, pnl: float | None, color: str, slug: str) -> str:
     farbe = pnl_color(pnl)
     return (
+        f'<a class="bubble-link" href="?go={slug}" target="_self">'
         f'<div class="bubble">'
         f'<div class="bubble-top"><span class="bubble-dot" style="background:{color}"></span>'
-        f'<span class="bubble-label">{label}</span></div>'
+        f'<span class="bubble-label">{label}</span>'
+        f'<span class="bubble-chev">›</span></div>'
         f'<div class="bubble-pnl" style="color:{farbe}">{format_eur(pnl)}</div>'
-        f'<div class="bubble-sub">realisiert</div></div>'
+        f'<div class="bubble-sub">realisiert</div></div></a>'
     )
