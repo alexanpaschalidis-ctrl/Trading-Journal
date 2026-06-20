@@ -25,9 +25,18 @@ html, body, .stApp, button, input, textarea, select,
     -webkit-font-smoothing: antialiased;
 }
 
-/* Streamlit-Chrome verstecken, ruhiger Hintergrund */
+/* Streamlit-Chrome verstecken */
 #MainMenu, header, footer {visibility: hidden;}
-.stApp {background: #F2F2F7;}
+
+/* Heller Hintergrund mit zarten Farbschleiern (damit das Glas durchscheint) */
+.stApp {
+    background:
+        radial-gradient(at 18% 8%, rgba(0,122,255,0.12), transparent 42%),
+        radial-gradient(at 85% 12%, rgba(175,82,222,0.11), transparent 42%),
+        radial-gradient(at 50% 95%, rgba(90,200,250,0.12), transparent 48%),
+        #EFEFF4;
+    background-attachment: fixed;
+}
 .block-container {padding-top: 1.4rem; padding-bottom: 3rem; max-width: 600px;}
 
 /* Titel */
@@ -37,27 +46,37 @@ html, body, .stApp, button, input, textarea, select,
 }
 .app-sub {color: #8E8E93; font-size: 0.9rem; margin-bottom: 0.9rem;}
 
-/* Buttons — clean, abgerundet, blauer Text */
-.stButton > button, .stFormSubmitButton > button {
-    width: 100%; border-radius: 12px; padding: 0.55rem 1rem;
-    font-size: 1rem; font-weight: 500;
-    background: #FFFFFF; color: #007AFF;
-    border: 1px solid rgba(60,60,67,0.12);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    transition: background 0.15s ease;
+/* Buttons — Liquid Glass */
+.stButton > button {
+    width: 100%; border-radius: 13px; padding: 0.55rem 1rem;
+    font-size: 1rem; font-weight: 500; color: #007AFF;
+    background: rgba(255,255,255,0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
-.stButton > button:hover {background: #F2F2F7; color: #007AFF; border-color: rgba(60,60,67,0.2);}
-.stButton > button:active {background: #E5E5EA;}
-/* Formular-Absenden = gefülltes Blau (primäre Aktion) */
-.stFormSubmitButton > button {background: #007AFF; color: #FFFFFF; border: none; font-weight: 600;}
-.stFormSubmitButton > button:hover {background: #0067D9; color: #FFFFFF;}
+.stButton > button:hover {background: rgba(255,255,255,0.75); box-shadow: 0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.7);}
+.stButton > button:active {transform: scale(0.98);}
+/* Formular-Absenden = gefülltes Glas-Blau (primäre Aktion) */
+.stFormSubmitButton > button {
+    width: 100%; border-radius: 13px; padding: 0.55rem 1rem; font-weight: 600;
+    color: #FFFFFF; border: 1px solid rgba(255,255,255,0.25);
+    background: linear-gradient(180deg, #2A93FF, #007AFF);
+    box-shadow: 0 4px 16px rgba(0,122,255,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+.stFormSubmitButton > button:hover {background: linear-gradient(180deg, #1E86FF, #0070EC);}
 
-/* Bubbles (Location-Karten) */
+/* Bubbles (Location-Karten) — Liquid Glass */
 .bubble {
-    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.1);
-    border-radius: 16px; padding: 16px; min-height: 118px;
+    background: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 20px; padding: 16px; min-height: 118px;
     display: flex; flex-direction: column; gap: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
 }
 .bubble-top {display: flex; align-items: center; gap: 7px;}
 .bubble-dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none;}
@@ -65,11 +84,14 @@ html, body, .stApp, button, input, textarea, select,
 .bubble-pnl {font-size: 1.5rem; font-weight: 700; margin-top: auto; letter-spacing: -0.02em;}
 .bubble-sub {font-size: 0.72rem; color: #8E8E93;}
 
-/* Trade-Karten */
+/* Trade-Karten — Liquid Glass */
 .trade-card {
-    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.1);
-    border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    background: rgba(255,255,255,0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 16px; padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .trade-top {display: flex; justify-content: space-between; align-items: baseline; gap: 8px;}
 .trade-dir {font-weight: 600; color: #1C1C1E;}
@@ -81,11 +103,15 @@ html, body, .stApp, button, input, textarea, select,
 .cal-grid {display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px;}
 .cal-head {text-align: center; font-size: 0.7rem; color: #8E8E93; padding: 2px 0; font-weight: 600;}
 .cal-cell {
-    min-height: 58px; border-radius: 10px; padding: 4px 5px;
-    background: #FFFFFF; border: 1px solid rgba(60,60,67,0.08);
+    min-height: 58px; border-radius: 12px; padding: 4px 5px;
+    background: rgba(255,255,255,0.5);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.65);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.55);
     display: flex; flex-direction: column; overflow: hidden;
 }
-.cal-empty {background: transparent; border: none;}
+.cal-empty {background: transparent; border: none; box-shadow: none;}
 .cal-today {border: 1.5px solid #007AFF;}
 .cal-day {color: #8E8E93; font-size: 0.68rem;}
 .cal-pnl {font-weight: 700; font-size: 0.8rem; margin-top: auto; line-height: 1.1; letter-spacing: -0.01em;}
