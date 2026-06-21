@@ -79,7 +79,9 @@ html, body, .stApp, button, input, textarea, select,
     box-shadow: 0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
 }
 .bubble {cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease;}
-/* Ganze Bubble klickbar: unsichtbarer Button über der Karte (gleiche Sitzung) */
+/* Ganze Bubble klickbar: unsichtbarer Button über DER JEWEILIGEN Karte.
+   Wichtig: Spalte = Bezugspunkt (position:relative), sonst überlagern sich alle. */
+[data-testid="column"] {position: relative;}
 [data-testid="column"]:hover .bubble {transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7);}
 [data-testid="column"]:active .bubble {transform: scale(0.99);}
 [class*="st-key-bubblebtn_"] {position: absolute; inset: 0; margin: 0 !important; z-index: 3;}
