@@ -74,21 +74,18 @@ html, body, .stApp, button, input, textarea, select,
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255,255,255,0.7);
-    border-radius: 20px; padding: 16px; min-height: 118px;
+    border-radius: 20px; padding: 16px; height: 120px;
     display: flex; flex-direction: column; gap: 6px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
+    cursor: pointer;
 }
-.bubble {cursor: pointer; transition: transform 0.14s ease, box-shadow 0.14s ease;}
-/* Ganze Bubble klickbar: unsichtbarer Button über DER JEWEILIGEN Karte.
-   Wichtig: Spalte = Bezugspunkt (position:relative), sonst überlagern sich alle. */
-[data-testid="column"] {position: relative;}
-[data-testid="column"]:hover .bubble {transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7);}
-[data-testid="column"]:active .bubble {transform: scale(0.99);}
-[class*="st-key-bubblebtn_"] {position: absolute; inset: 0; margin: 0 !important; z-index: 3;}
-[class*="st-key-bubblebtn_"] div[data-testid="stButton"] {height: 100%;}
+/* Ganze Bubble klickbar: transparenter Button wird per negativem Abstand exakt
+   über SEINE Bubble gezogen (versionsunabhängig, kein Positionskontext nötig). */
+[class*="st-key-bubblebtn_"] {margin-top: -138px !important; margin-bottom: 18px !important; position: relative; z-index: 10;}
 [class*="st-key-bubblebtn_"] button {
-    width: 100%; height: 100%; min-height: 118px; opacity: 0;
+    width: 100%; height: 120px; min-height: 120px; opacity: 0;
     padding: 0; border: none; box-shadow: none; background: transparent;
+    cursor: pointer;
 }
 .bubble-top {display: flex; align-items: center; gap: 7px;}
 .bubble-dot {width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none;}
